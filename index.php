@@ -6,14 +6,17 @@
 // should be "/comem-archidep-php-todo-exercise/". If you are accessing the
 // application at "http://localhost:8888", then BASE_URL should be "/".
 
-define('BASE_URL', getenv('TODOLIST_BASE_URL') ?: '/');
+// Get a MySQL connection URL from the environment, or use one with default parameters.
+// Support the $CLEARDB_DATABASE_URL variable from the ClearDB MySQL add-on on Heroku.
+$dbDefaults = parse_url(getenv('CLEARDB_DATABASE_URL') ?: getenv('TODOLIST_DB_URL') ?: "mysql://todolist@127.0.0.1:3306/todolist");
 
-// Database connection parameters.
-define('DB_USER', getenv('TODOLIST_DB_USER') ?:'todolist');
-define('DB_PASS', getenv('TODOLIST_DB_PASS'));
-define('DB_NAME', getenv('TODOLIST_DB_NAME') ?:'todolist');
-define('DB_HOST', getenv('TODOLIST_DB_HOST') ?:'127.0.0.1');
-define('DB_PORT', getenv('TODOLIST_DB_PORT') ?:'3306');
+// Get configuration from the environment or use default values from the connection URL.
+define('BASE_URL', getenv('TODOLIST_BASE_URL') ?: '/');
+define('DB_USER', getenv('TODOLIST_DB_USER') ?: $dbDefaults["user"]);
+define('DB_PASS', getenv('TODOLIST_DB_PASS') ?: $dbDefaults["pass"]);
+define('DB_NAME', getenv('TODOLIST_DB_NAME') ?: substr($dbDefaults["path"], 1));
+define('DB_HOST', getenv('TODOLIST_DB_HOST') ?: $dbDefaults["host"]);
+define('DB_PORT', getenv('TODOLIST_DB_PORT') ?: $dbDefaults["port"]);
 
 $db = new PDO('mysql:host='.DB_HOST.';port='.DB_PORT.';dbname='.DB_NAME, DB_USER, DB_PASS);
 $items = array();
